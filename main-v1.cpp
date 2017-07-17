@@ -1,8 +1,8 @@
 /*********************************************************************** 
  * This code uses MPI library to count word frequencies distributed in *
  * several files. Manager-worker pattern is used for self-scheduling.  *
- * Author: Dawei Wang												   *
- * Date: 2017-07-03.												   *
+ * Author: Dawei Wang						       *
+ * Date: 2017-07-03.						       *
  ***********************************************************************/
 
 #include <mpi.h>
@@ -67,12 +67,12 @@ int getFileList(FILE *listFile, char p[], char *filePaths[]) {
  *  A wrapper of the above function. Read data paths from listFile, and store     *
  *  each path in the continuous array content_array, with every starting          *
  *   address pointed to by pointers in p_array.                                   *
- *                       _________________________________________				  *
- *   content_array       |+++++++++|+++++++++|+++++++++|+++++++++|				  *
- *   Memory Addres       p1        p2        p3        p4						  *
- *                       _____________________									  *
- *   p_array             | p1 | p2 | p3 | p4 |									  *
- *																				  *
+ *                       _________________________________________		  *
+ *   content_array       |+++++++++|+++++++++|+++++++++|+++++++++|		  *
+ *   Memory Addres       p1        p2        p3        p4			  *
+ *                       _____________________					  *
+ *   p_array             | p1 | p2 | p3 | p4 |					  *
+ *										  *
  **********************************************************************************/
 int getDataPaths(char listFile[], char content_array[], char *p_array[]) {
 	int counts = 0;
@@ -245,7 +245,7 @@ int main(int argc, char *argv[]) {
 		tag_shuffle = 4, 
 		/* Note that we need to differentiate these two status tag, 
 		   or there will be a deadlock caused by processor race!!! */
-		// 注意这里出过错！！！
+		// 娉ㄦ剰杩欓噷鍑鸿繃閿欙紒锛侊紒
 		tag_worker_status_change_1 = 5,
 		tag_worker_status_change_2 = 6,
 		tag_final = 7,
@@ -559,7 +559,7 @@ int main(int argc, char *argv[]) {
 		fclose(fp_waitthensend);
 		/**********************************************************************/
 
-		// 注意这里出过错！！！
+		// 娉ㄦ剰杩欓噷鍑鸿繃閿欙紒锛侊紒
 		/* Note here I use MPI_Ssend, not MPI_Send, or there might be deadlock in some run. 
 		   BE CAREFULL AND THINK ABOUT THIS!!! */
 		MPI_Ssend(targ_proc, num_tp, MPI_INT, manager, tag_get_shuffle_procs, MPI_COMM_WORLD);
