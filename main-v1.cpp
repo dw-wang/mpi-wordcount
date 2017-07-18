@@ -419,7 +419,7 @@ int main(int argc, char *argv[]) {
 			printf("Begin sending final signal!\n");
 			/* Although the corresponding Recv can listen on MPI_ANY_TAG and MPI_ANY_SOURCE,
 			   the DataType in Send and Recv must match, so here we need to use wordcount_t. */
-			MPI_Ssend(MPI_BOTTOM, 0, wordcount_t, i, tag_final, MPI_COMM_WORLD);
+			MPI_Send(MPI_BOTTOM, 0, wordcount_t, i, tag_final, MPI_COMM_WORLD);
 			printf("Manager final signal sent!\n");
 		}
 
@@ -560,9 +560,7 @@ int main(int argc, char *argv[]) {
 		/**********************************************************************/
 
 		// 注意这里出过错！！！
-		/* Note here I use MPI_Ssend, not MPI_Send, or there might be deadlock in some run. 
-		   BE CAREFULL AND THINK ABOUT THIS!!! */
-		MPI_Ssend(targ_proc, num_tp, MPI_INT, manager, tag_get_shuffle_procs, MPI_COMM_WORLD);
+		MPI_Send(targ_proc, num_tp, MPI_INT, manager, tag_get_shuffle_procs, MPI_COMM_WORLD);
 		/************************ Debug section *****************************/
 		char debug_target[1024];
 		char fileName7[] = "debug_target";
