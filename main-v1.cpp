@@ -217,9 +217,10 @@ int setTargetArray(int dest[], int n1, int source[], int n2) {
 
 		bool foundmatch = false;
 		for (int i = 0; i < count; i++) {
-			if (dest[i] == source[j])
+			if (dest[i] == source[j]) {
 				foundmatch = true;
 				break;
+			}
 		}
 		if (foundmatch) continue;
 		dest[count] = source[j];
@@ -245,7 +246,6 @@ int main(int argc, char *argv[]) {
 		tag_shuffle = 4, 
 		/* Note that we need to differentiate these two status tag, 
 		   or there will be a deadlock caused by processor race!!! */
-		// 注意这里出过错！！！
 		tag_worker_status_change_1 = 5,
 		tag_worker_status_change_2 = 6,
 		tag_final = 7,
@@ -376,7 +376,7 @@ int main(int argc, char *argv[]) {
 
 		/* Listening on the final status of all worker processors and set the 
 		   corresponding element in the ReadyToGather array. */
-		for (int i = 0; i < NUM_PROCESS - 1; i++) {
+		for (int i = 0; i < MIN(NUM_PROCESS - 1, task_counts); i++) {
 			printf("Waiting for shuffle stage to be completed!\nListening on worker status change signal ......\n");
 			int temp;
 			MPI_Status status;
@@ -389,7 +389,7 @@ int main(int argc, char *argv[]) {
 
 		/* Receiving processor ranks being involved in the shuffle stage,
 		   and putting it into the maintained array. */
-		for (int i = 0; i < NUM_PROCESS - 1; i++) {
+		for (int i = 0; i < MIN(NUM_PROCESS - 1, task_counts); i++) {
 			printf("To Receive processor ids involved in shuffle stage ......\n");
 
 			int recvd_array[NUM_PROCESS - 1] = { 0 };
@@ -415,7 +415,7 @@ int main(int argc, char *argv[]) {
 		MPI_Bcast(shuffle_receive_process, num_targetProcess, MPI_INT, manager, MPI_COMM_WORLD);
 		printf("Broadcasting completed!\n\n");
 
-		for (int i = 1; i <= NUM_PROCESS - 1; i++) {
+		for (int i = 1; i <= num_targetProcess; i++) {
 			printf("Begin sending final signal!\n");
 			/* Although the corresponding Recv can listen on MPI_ANY_TAG and MPI_ANY_SOURCE,
 			   the DataType in Send and Recv must match, so here we need to use wordcount_t. */
@@ -559,7 +559,6 @@ int main(int argc, char *argv[]) {
 		fclose(fp_waitthensend);
 		/**********************************************************************/
 
-		// 注意这里出过错！！！
 		MPI_Send(targ_proc, num_tp, MPI_INT, manager, tag_get_shuffle_procs, MPI_COMM_WORLD);
 		/************************ Debug section *****************************/
 		char debug_target[1024];
