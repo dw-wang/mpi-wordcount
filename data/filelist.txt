@@ -1,0 +1,6 @@
+data/file0.txt
+data/file1.txt
+data/file2.txt
+data/file3.txt
+data/file4.txt
+data/file5.txt
