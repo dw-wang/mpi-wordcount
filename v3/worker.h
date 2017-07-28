@@ -86,15 +86,6 @@ void ShuffleIssend_Worker(Worker *worker, int proc_rank, MPI_Datatype wordcount_
 	int targ_proc[NUM_PROCESS - 1] = { 0 };
 	int num_tp = 0;
 
-	/************************ Debug section *****************************/
-	char debug[1024];
-	char fname[] = "debug";
-	genFullFilePath(debug, fname);
-	FILE *fp_debug = fopen(debug, "a+");
-	fprintf(fp_debug, "num of locally counted words: %d\n", worker->num_localcountedwords);
-	fclose(fp_debug);
-	/********************************************************************/
-
 	for (int i = 0; i < worker->num_localcountedwords; i++) {
 		int hash_code = wordHash(worker->localcounted_array[i].word);
 		int target_proc = hash_code % (NUM_PROCESS - 1) + 1;
@@ -119,10 +110,10 @@ void ShuffleIssend_Worker(Worker *worker, int proc_rank, MPI_Datatype wordcount_
 	int IMDONE = WORKER_READY_TO_GATHER_STATUS;
 	MPI_Send(&IMDONE, 1, MPI_INT, manager_rank, tag_worker_status_change_2, MPI_COMM_WORLD);
 
-	// ÆäÊµ¿ÉÒÔ¿¼ÂÇ²ÉÓÃMPI_Allgatherv½«targ_procÊÕ¼¯ÆðÀ´£¬µ«ÊÇÕâÑùµÄ»°ÊÕ¼¯ÆðÀ´µÄtarget_array
-	// »áÓÐºÜ¶àduplicate£¬×îÔã¸âµÄÇé¿öÊÇ(NUM_PROCESS - 1)^2½×£¬Èç¹ûÊÕ¼¯Ö®Ç°²»È¥ÖØµÄ»°Çé¿ö¸üÔã£¬
-	// ¶øÇÒÊÕ¼¯Ö®ºó»¹ÊÇµÃÈ¥ÖØ£¬ÒòÎªÏÂÃæÒªÓÃµ½×ÜÊý£¬¶øÇÒÏÂÃæÓÃisTarget()²éÑ¯µÄÊ±ºò»áºÜÂý£¬¾ßÌåÕâÀï»¹ÓÐ´ýÉÌÈ¶¡£
-	// ×¢ÒâÕâÀï³ö¹ý´í£¡£¡£¡
+	// å…¶å®žå¯ä»¥è€ƒè™‘é‡‡ç”¨MPI_Allgathervå°†targ_procæ”¶é›†èµ·æ¥ï¼Œä½†æ˜¯è¿™æ ·çš„è¯æ”¶é›†èµ·æ¥çš„target_array
+	// ä¼šæœ‰å¾ˆå¤šduplicateï¼Œæœ€ç³Ÿç³•çš„æƒ…å†µæ˜¯(NUM_PROCESS - 1)^2é˜¶ï¼Œå¦‚æžœæ”¶é›†ä¹‹å‰ä¸åŽ»é‡çš„è¯æƒ…å†µæ›´ç³Ÿï¼Œ
+	// è€Œä¸”æ”¶é›†ä¹‹åŽè¿˜æ˜¯å¾—åŽ»é‡ï¼Œå› ä¸ºä¸‹é¢è¦ç”¨åˆ°æ€»æ•°ï¼Œè€Œä¸”ä¸‹é¢ç”¨isTarget()æŸ¥è¯¢çš„æ—¶å€™ä¼šå¾ˆæ…¢ï¼Œå…·ä½“è¿™é‡Œè¿˜æœ‰å¾…å•†æ¦·ã€‚
+	// æ³¨æ„è¿™é‡Œå‡ºè¿‡é”™ï¼ï¼ï¼
 	MPI_Send(targ_proc, num_tp, MPI_INT, manager_rank, tag_get_shuffle_procs, MPI_COMM_WORLD);
 
 	worker->num_shuffle_local = req_index;
