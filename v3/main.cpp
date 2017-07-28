@@ -2,7 +2,7 @@
 * This code uses MPI library to count word frequencies distributed in *
 * several files. Manager-worker pattern is used for self-scheduling.  *
 * <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> *
-* ÆäÊµÃ»ÓĞ±ØÒª²ÉÓÃManager-WorkerµÄÄ£Ê½£¬ÕâÀïÎªÁËÁ·ÊÖËùÒÔ²ÉÓÃÁËÕâÖÖ×ö·¨.   *
+* å…¶å®æ²¡æœ‰å¿…è¦é‡‡ç”¨Manager-Workerçš„æ¨¡å¼ï¼Œè¿™é‡Œä¸ºäº†ç»ƒæ‰‹æ‰€ä»¥é‡‡ç”¨äº†è¿™ç§åšæ³•.   *
 * <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> *
 * Author: Dawei Wang												  *
 * Date: 2017-07-03.												      *
@@ -15,7 +15,7 @@
 int main(int argc, char *argv[]) {
 	int numprocess, proc_rank;
 	Manager manager;
-	// ³õÊ¼»¯Manager
+	// åˆå§‹åŒ–Manager
 	Init_Manager(&manager);
 
 	MPI_Init(&argc, &argv);
@@ -26,10 +26,10 @@ int main(int argc, char *argv[]) {
 	MPI_Datatype wordcount_t = createWordCountPairType();
 
 	/* Create a seperate workers communicator from MPI_COMM_WORLD. */
-	// Îªworkersµ¥¶À´´½¨Ò»¸öCommunicator£¬ÒòÎªÔÚGather resultµÄÊ±ºò£¬Manager
-	// ÊÇ²»ÄÜ²ÎÓëµÄ£¬Ö»ÄÜÔÚworker communicatorÖĞgatherºÃÁËÔÙ·¢ËÍ¸øManager¡£
-	// ÔÙ´ÎÖØÉê£¬Õâ¸öÎÊÌâÊµ¼ÊÉÏÊÇ²»ĞèÒª²ÉÓÃManager-workerÄ£Ê½µÄ£¬ÕâÑù×ö·´¶øÊ¹µÃ
-	// ÎÊÌâÉÔÎ¢¸´ÔÓ»¯ÁË£¬Ö®ËùÒÔ²ÉÓÃÊÇÎªÁËÁ·ÊÖ
+	// ä¸ºworkerså•ç‹¬åˆ›å»ºä¸€ä¸ªCommunicatorï¼Œå› ä¸ºåœ¨Gather resultçš„æ—¶å€™ï¼ŒManager
+	// æ˜¯ä¸èƒ½å‚ä¸çš„ï¼Œåªèƒ½åœ¨worker communicatorä¸­gatherå¥½äº†å†å‘é€ç»™Managerã€‚
+	// å†æ¬¡é‡ç”³ï¼Œè¿™ä¸ªé—®é¢˜å®é™…ä¸Šæ˜¯ä¸éœ€è¦é‡‡ç”¨Manager-workeræ¨¡å¼çš„ï¼Œè¿™æ ·åšåè€Œä½¿å¾—
+	// é—®é¢˜ç¨å¾®å¤æ‚åŒ–äº†ï¼Œä¹‹æ‰€ä»¥é‡‡ç”¨æ˜¯ä¸ºäº†ç»ƒæ‰‹
 	MPI_Comm worker_comm;
 	createWokerComm(MPI_COMM_WORLD, &worker_comm);
 
@@ -39,39 +39,39 @@ int main(int argc, char *argv[]) {
 
 		const char fileName[] = "data\\filelist.txt";
 
-		// »ñÈ¡ÈÎÎñÎÄ¼şÂ·¾¶£¬ÒÔ¼°ÈÎÎñ¸öÊı
+		// è·å–ä»»åŠ¡æ–‡ä»¶è·¯å¾„ï¼Œä»¥åŠä»»åŠ¡ä¸ªæ•°
 		GetTasks_Manager(&manager, fileName);
 
-		// Broadcast×ÜÈÎÎñ¸öÊı£¬ÒòÎª¸÷¸ö½ø³ÌĞèÒªÖªµÀÕâÒ»ĞÅÏ¢ÒÔÅĞ¶Ï×Ô¼ºÊÇ·ñÄÜ·Öµ½ÈÎÎñ
+		// Broadcastæ€»ä»»åŠ¡ä¸ªæ•°ï¼Œå› ä¸ºå„ä¸ªè¿›ç¨‹éœ€è¦çŸ¥é“è¿™ä¸€ä¿¡æ¯ä»¥åˆ¤æ–­è‡ªå·±æ˜¯å¦èƒ½åˆ†åˆ°ä»»åŠ¡
 		BcastTaskCounts_Manager(&manager);
 
-		// Ò»´ÎĞÔ·Ö·¢µÚÒ»ÅúÈÎÎñµ½¸÷¸ö½ø³Ì
+		// ä¸€æ¬¡æ€§åˆ†å‘ç¬¬ä¸€æ‰¹ä»»åŠ¡åˆ°å„ä¸ªè¿›ç¨‹
 		DispatchTasks1_Manager(&manager, wordcount_t);
 
-		// ÏìÓ¦workerµÄwork requestÇëÇó£¬Èç¹ûÓĞÎ´Íê³ÉÈÎÎñÔò·¢¸øÏàÓ¦½ø³Ì£¬
-		// ·ñÔò·¢³öĞÅºÅ¸Ä±äÕâÒ»½ø³ÌµÄ×´Ì¬£¬±íÊ¾ÆäÕı´¦ÓÚidle£¬×¼±¸¾ÍĞ÷½øÈëÏÂÒ»½×¶Î
+		// å“åº”workerçš„work requestè¯·æ±‚ï¼Œå¦‚æœæœ‰æœªå®Œæˆä»»åŠ¡åˆ™å‘ç»™ç›¸åº”è¿›ç¨‹ï¼Œ
+		// å¦åˆ™å‘å‡ºä¿¡å·æ”¹å˜è¿™ä¸€è¿›ç¨‹çš„çŠ¶æ€ï¼Œè¡¨ç¤ºå…¶æ­£å¤„äºidleï¼Œå‡†å¤‡å°±ç»ªè¿›å…¥ä¸‹ä¸€é˜¶æ®µ
 		RespondToWorkReq_Manager(&manager, wordcount_t);
 
-		// ½ÓÊÕËùÓĞworker·¢À´µÄShuffleIssendÍê±ÏµÄĞÅºÅ£¬×¢ÒâÕâÀïÖ»±íÊ¾IssendÒÑÖ´ĞĞ£¬
-		// µ«²¢²»±íÊ¾ÒÑ·µ»Ø£¬¼´²¢²»±íÊ¾ÒÑ±»Recv
+		// æ¥æ”¶æ‰€æœ‰workerå‘æ¥çš„ShuffleIssendå®Œæ¯•çš„ä¿¡å·ï¼Œæ³¨æ„è¿™é‡Œåªè¡¨ç¤ºIssendå·²æ‰§è¡Œï¼Œ
+		// ä½†å¹¶ä¸è¡¨ç¤ºå·²è¿”å›ï¼Œå³å¹¶ä¸è¡¨ç¤ºå·²è¢«Recv
 		CheckAllCompleteShuffle_Manager(&manager);
 
-		// ½«ËùÓĞ²ÎÓëShuffleĞèÒªRecvµÄ½ø³ÌµÄrankÁĞ±í¹ã²¥³öÈ¥
+		// å°†æ‰€æœ‰å‚ä¸Shuffleéœ€è¦Recvçš„è¿›ç¨‹çš„rankåˆ—è¡¨å¹¿æ’­å‡ºå»
 		BcastShuffleProcs_Manager(&manager);
 
-		// ¼ÆËãËùÓĞ½ø³ÌÖĞ²ÎÓëShuffleµÄµ¥´ÊµÄ¸öÊı×ÜºÍ£¬ÓÃÀ´Ö¸µ¼ManagerÓ¦µ±ÔÚÊ²Ã´Ê±ºò
-		// ·¢ËÍtermination signal£¬·ÀÖ¹ÆäÌáÇ°·¢ËÍÒÔ¸ÉÈÅÄ³Ğ©½ø³Ì½ÓÊÕshuffle words
+		// è®¡ç®—æ‰€æœ‰è¿›ç¨‹ä¸­å‚ä¸Shuffleçš„å•è¯çš„ä¸ªæ•°æ€»å’Œï¼Œç”¨æ¥æŒ‡å¯¼Manageråº”å½“åœ¨ä»€ä¹ˆæ—¶å€™
+		// å‘é€termination signalï¼Œé˜²æ­¢å…¶æå‰å‘é€ä»¥å¹²æ‰°æŸäº›è¿›ç¨‹æ¥æ”¶shuffle words
 		SumTotalNumOfWordsInShuffle_Manager(&manager);
 
-		// ManagerÃ¿ÊÕµ½Ò»¸öRecvÍê±ÏµÄĞÅºÅ£¬¾Í½«Æä¼ÇÂ¼ÏÂ£¬µ±ÊÕµ½µÄĞÅºÅ¸öÊıµÈÓÚ
-		// ÉÏÒ»²½ÇóµÃµÄ×ÜºÍÊ±£¬¾Í±íÊ¾ËùÓĞIssend³öÈ¥µÄµ¥´Ê¶¼±»½ÓÊÕÍê±Ï£¬¿ÉÒÔ·¢ËÍ
-		// termination signalÁË
+		// Manageræ¯æ”¶åˆ°ä¸€ä¸ªRecvå®Œæ¯•çš„ä¿¡å·ï¼Œå°±å°†å…¶è®°å½•ä¸‹ï¼Œå½“æ”¶åˆ°çš„ä¿¡å·ä¸ªæ•°ç­‰äº
+		// ä¸Šä¸€æ­¥æ±‚å¾—çš„æ€»å’Œæ—¶ï¼Œå°±è¡¨ç¤ºæ‰€æœ‰Issendå‡ºå»çš„å•è¯éƒ½è¢«æ¥æ”¶å®Œæ¯•ï¼Œå¯ä»¥å‘é€
+		// termination signaläº†
 		RecordingShuffleWordsRecvd_Manager(&manager);
 
-		// ·¢ËÍtermination signalÒÔÖÕÖ¹ËùÓĞworker½ø³ÌµÄRecvÑ­»·
+		// å‘é€termination signalä»¥ç»ˆæ­¢æ‰€æœ‰workerè¿›ç¨‹çš„Recvå¾ªç¯
 		SendTermSigToShuffleRecv_Manager(&manager, wordcount_t);
 
-		// »ØÊÕ×îÖÕ¼ÆËã½á¹û
+		// å›æ”¶æœ€ç»ˆè®¡ç®—ç»“æœ
 		GetFinalResult_Manager(&manager, wordcount_t);
 	}
 
@@ -79,51 +79,45 @@ int main(int argc, char *argv[]) {
 
 	else {
 		Worker worker;
-		// ³õÊ¼»¯Worker
+		// åˆå§‹åŒ–Worker
 		Init_Worker(&worker);
 
-		// »ñÈ¡×ÜÈÎÎñ¸öÊı
+		// è·å–æ€»ä»»åŠ¡ä¸ªæ•°
 		BcastTaskCounts_Worker(&worker);
 
-		// Èç¹ûworkerµÄproc_rank±È×ÜµÄÈÎÎñ¸öÊıÒªĞ¡£¬ÔòÆä¿ÉÒÔ·ÖÅäµ½ÈÎÎñ
+		// å¦‚æœworkerçš„proc_rankæ¯”æ€»çš„ä»»åŠ¡ä¸ªæ•°è¦å°ï¼Œåˆ™å…¶å¯ä»¥åˆ†é…åˆ°ä»»åŠ¡
 		if (proc_rank <= worker.task_counts) {
 			while (true) {
-				// ½ÓÊÕ²¢´¦ÀíÈÎÎñ£¬´¦ÀíÍê³ÉºóÇëÇóÏÂÒ»ÈÎÎñ
+				// æ¥æ”¶å¹¶å¤„ç†ä»»åŠ¡ï¼Œå¤„ç†å®Œæˆåè¯·æ±‚ä¸‹ä¸€ä»»åŠ¡
 				RecvAndProcessTasks_Worker(&worker, wordcount_t);
 
-				// ÏòManager·¢³öwork requestÇëÇó
+				// å‘Managerå‘å‡ºwork requestè¯·æ±‚
 				int Got = RequireWork_Worker();
 				if (!Got)
 					break;
 			}
 
-			// ½øÈëShuffle½×¶Î£¬½«Ã¿¸öword·¢ËÍµ½Ö¸¶¨µÄ½ø³Ì
+			// è¿›å…¥Shuffleé˜¶æ®µï¼Œå°†æ¯ä¸ªwordå‘é€åˆ°æŒ‡å®šçš„è¿›ç¨‹
 			ShuffleIssend_Worker(&worker, proc_rank, wordcount_t);
 
-			// ½«Shuffle½×¶ÎĞèÒª½ÓÊÕµ¥´ÊµÄËùÓĞ½ø³ÌµÄrankµÄÁĞ±í¹ã²¥³öÈ¥
+			// å°†Shuffleé˜¶æ®µéœ€è¦æ¥æ”¶å•è¯çš„æ‰€æœ‰è¿›ç¨‹çš„rankçš„åˆ—è¡¨å¹¿æ’­å‡ºå»
 			BcastShuffleProcs_Worker(&worker);
 
-			// ¼ÆËãËùÓĞ½ø³ÌÖĞ²ÎÓëShuffleµÄµ¥´ÊµÄ¸öÊı×ÜºÍ£¬ÓÃÀ´Ö¸µ¼ManagerÓ¦µ±ÔÚÊ²Ã´Ê±ºò
-			// ·¢ËÍtermination signal£¬·ÀÖ¹ÆäÌáÇ°·¢ËÍÒÔ¸ÉÈÅÄ³Ğ©½ø³Ì½ÓÊÕshuffle words
+			// è®¡ç®—æ‰€æœ‰è¿›ç¨‹ä¸­å‚ä¸Shuffleçš„å•è¯çš„ä¸ªæ•°æ€»å’Œï¼Œç”¨æ¥æŒ‡å¯¼Manageråº”å½“åœ¨ä»€ä¹ˆæ—¶å€™
+			// å‘é€termination signalï¼Œé˜²æ­¢å…¶æå‰å‘é€ä»¥å¹²æ‰°æŸäº›è¿›ç¨‹æ¥æ”¶shuffle words
 			SumTotalNumOfWordsInShuffle_Worker(&worker);
 
-			// ´´½¨Ñ­»·½ÓÊÕShuffle words£¬Èç¹ûÊÕµ½µÄĞÅÏ¢À´×ÔManager£¬ÔòÍË³öÑ­»·Í£Ö¹½ÓÊÕ
+			// åˆ›å»ºå¾ªç¯æ¥æ”¶Shuffle wordsï¼Œå¦‚æœæ”¶åˆ°çš„ä¿¡æ¯æ¥è‡ªManagerï¼Œåˆ™é€€å‡ºå¾ªç¯åœæ­¢æ¥æ”¶
 			ShuffleRecv_Worker(&worker, proc_rank, wordcount_t);
 
-			// WaitËùÓĞµÄÒì²½·¢ËÍIssend
+			// Waitæ‰€æœ‰çš„å¼‚æ­¥å‘é€Issend
 			ShuffleWaitall_Worker(&worker);
 
-			// Gather×îÖÕµÄresultµ½worker_commÖĞrank 0µÄ½ø³Ì
+			// Gatheræœ€ç»ˆçš„resultåˆ°worker_commä¸­rank 0çš„è¿›ç¨‹
 			GatherResultInWorkerComm_Worker(&worker, worker_comm, wordcount_t);
 
-			// ½«×îÖÕ½á¹û·¢ËÍ¸øManager
+			// å°†æœ€ç»ˆç»“æœå‘é€ç»™Manager
 			SendResultToManager_Worker(&worker, worker_comm, wordcount_t);
-		}
-
-		// Èç¹ûworkerµÄproc_rank±È×ÜµÄÈÎÎñ¸öÊıÒª´ó£¬ÔòÆä²»¿ÉÄÜ·ÖÅäµ½ÈÎÎñ£¬
-		// Òò´ËĞèÒª½«Æä¹Ø±ÕÍË³ö¹¤×÷¿Õ¼ä£¬Ò²¼´Finalize()
-		else {
-			MPI_Finalize();
 		}
 	}
 
