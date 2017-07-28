@@ -131,8 +131,8 @@ void SumTotalNumOfWordsInShuffle_Worker(Worker *worker) {
 }
 
 void ShuffleRecv_Worker(Worker *worker, int proc_rank, MPI_Datatype wordcount_t) {
-	while (true) {
-		if (isTarget(worker->shuffle_receive_process, worker->num_targetProcess, proc_rank)) {
+	if (isTarget(worker->shuffle_receive_process, worker->num_targetProcess, proc_rank)) {
+		while (true) {
 			MPI_Status status_shuffle;
 			word_count_pair temp[1];
 			memset(temp, 0, sizeof(word_count_pair));
@@ -146,8 +146,6 @@ void ShuffleRecv_Worker(Worker *worker, int proc_rank, MPI_Datatype wordcount_t)
 			worker->partialResultCounts = combineHistogram(worker->locallyRecvdPartialResult, 
 				worker->partialResultCounts, temp, 1);
 		}
-		else
-			break;
 	}
 }
 
